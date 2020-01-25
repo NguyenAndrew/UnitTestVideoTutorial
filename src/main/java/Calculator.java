@@ -1,10 +1,16 @@
 public class Calculator {
 
-    public int calculateY(int x) {
-        AdditionService additionService = new AdditionService();
-        MultiplicationService multiplicationService = new MultiplicationService();
-        SubtractionService subtractionService = new SubtractionService();
+    private AdditionService additionService;
+    private MultiplicationService multiplicationService;
+    private SubtractionService subtractionService;
 
+    Calculator(AdditionService additionService, MultiplicationService multiplicationService, SubtractionService subtractionService) {
+        this.additionService = additionService;
+        this.multiplicationService = multiplicationService;
+        this.subtractionService = subtractionService;
+    }
+
+    public int calculateY(int x) {
         // y = x
         int y = x;
 
