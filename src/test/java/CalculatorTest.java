@@ -18,9 +18,6 @@ class CalculatorTest {
 
     @BeforeEach
     void setUp() {
-//        AdditionService additionService = new AdditionService();
-//        MultiplicationService multiplicationService = new MultiplicationService();
-//        SubtractionService subtractionService = new SubtractionService();
         this.additionService = mock(AdditionService.class);
         this.multiplicationService = mock(MultiplicationService.class);
         this.subtractionService = mock(SubtractionService.class);
