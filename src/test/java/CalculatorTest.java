@@ -45,7 +45,6 @@ class CalculatorTest {
             // Given (Setup)
             int expected = SAMPLE_SUB_MULTI_OUTPUT;
             int x = 10;
-
             mockUpUntil(MockId.ALL);
 
             // When (Run the thing that you want to test)
@@ -141,6 +140,8 @@ class CalculatorTest {
                 return;
             }
         }
+
+        // Optional: verifyUpUntil(), used only when the method is a void and the test being done is the verify to underlying services.
     }
 
     @Nested
@@ -150,7 +151,4 @@ class CalculatorTest {
             assertEquals(1, calculator.sameValue(1));
         }
     }
-
-    // Optional: verifyUpUntil(), used only when the method is a void and the test being done is the verify to underlying services.
-
 }
