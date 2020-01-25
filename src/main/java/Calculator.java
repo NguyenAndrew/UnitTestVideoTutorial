@@ -3,11 +3,13 @@ public class Calculator {
     private AdditionService additionService;
     private MultiplicationService multiplicationService;
     private SubtractionService subtractionService;
+    private SubMultiService subMultiService;
 
-    Calculator(AdditionService additionService, MultiplicationService multiplicationService, SubtractionService subtractionService) {
+    Calculator(AdditionService additionService, MultiplicationService multiplicationService, SubtractionService subtractionService, SubMultiService subMultiService) {
         this.additionService = additionService;
         this.multiplicationService = multiplicationService;
         this.subtractionService = subtractionService;
+        this.subMultiService = subMultiService;
     }
 
     public int calculateY(int x) {
@@ -25,8 +27,9 @@ public class Calculator {
         // y = (5 + x) * x
         y = multiplicationService.multiply(y, x);
 
-        // y = (5 + x) * x - x
-        y = subtractionService.subtract(y, x);
+        // y = (((5 + x) * x) - 5) * 2
+        y = subMultiService.subtractThenMultiplyBy2(y, x);
+
 
         return y;
     }

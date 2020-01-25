@@ -9,11 +9,13 @@ class CalculatorTest {
     private static final int SAMPLE_ADDITION_OUTPUT = 1;
     private static final int SAMPLE_MULTIPLICATION_OUTPUT = 2;
     private static final int SAMPLE_SUBTRACTION_OUTPUT = 3;
+    private static final int SAMPLE_SUB_MULTI_OUTPUT = 4;
     private static final String SAMPLE_EXCEPTION_MESSAGE = "Sample Exception Message";
 
     private AdditionService additionService;
     private MultiplicationService multiplicationService;
     private SubtractionService subtractionService;
+    private SubMultiService subMultiService;
 
     private Calculator calculator;
 
@@ -21,6 +23,7 @@ class CalculatorTest {
         ADDITION_SERVICE,
         MULTIPLICATION_SERVICE,
         SUBTRACTION_SERVICE,
+        SUB_MULTI_SERVICE,
         ALL
     }
 
@@ -30,13 +33,14 @@ class CalculatorTest {
         this.additionService = mock(AdditionService.class);
         this.multiplicationService = mock(MultiplicationService.class);
         this.subtractionService = mock(SubtractionService.class);
-        this.calculator = new Calculator(additionService, multiplicationService, subtractionService);
+        this.subMultiService = mock(SubMultiService.class);
+        this.calculator = new Calculator(additionService, multiplicationService, subtractionService, subMultiService);
     }
 
     @Test
     public void givenAnInput_whenCalculatorCalculates_thenWeExpectAnOutput() {
         // Given (Setup)
-        int expected = SAMPLE_SUBTRACTION_OUTPUT;
+        int expected = SAMPLE_SUB_MULTI_OUTPUT;
         int x = 10;
 
         mockUpUntil(MockId.ALL);
@@ -100,6 +104,9 @@ class CalculatorTest {
 
         if (mockId == MockId.SUBTRACTION_SERVICE) { return; }
         when(subtractionService.subtract(anyInt(), anyInt())).thenReturn(SAMPLE_SUBTRACTION_OUTPUT);
+
+        if (mockId == MockId.SUB_MULTI_SERVICE) { return; }
+        when(subMultiService.subtractThenMultiplyBy2(anyInt(), anyInt())).thenReturn(SAMPLE_SUB_MULTI_OUTPUT);
     }
 
     private void verifyUpUntilAnd(MockId mockId) {
@@ -109,8 +116,11 @@ class CalculatorTest {
         verify(multiplicationService, times(1)).multiply(anyInt(), anyInt());
         if (mockId == MockId.MULTIPLICATION_SERVICE) { return; }
 
-        verify(subtractionService, times(1)).subtract(anyInt(), anyInt());
+        verifyZeroInteractions(subtractionService);
         if (mockId == MockId.SUBTRACTION_SERVICE) { return; }
+
+        verify(subMultiService, times(1)).subtractThenMultiplyBy2(anyInt(), anyInt());
+        if (mockId == MockId.SUB_MULTI_SERVICE) { return; }
     }
 
     // Optional: verifyUpUntil(), used only when the method is a void and the test being done is the verify to underlying services.
