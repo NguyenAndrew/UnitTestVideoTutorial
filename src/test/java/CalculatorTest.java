@@ -8,7 +8,6 @@ import static org.mockito.Mockito.*;
 class CalculatorTest {
     private static final int SAMPLE_ADDITION_OUTPUT = 0;
     private static final int SAMPLE_MULTIPLICATION_OUTPUT = 0;
-    private static final int SAMPLE_SUBTRACTION_OUTPUT = 0;
     private static final String SAMPLE_EXCEPTION_MESSAGE = "Sample Exception Message";
 
     private AdditionService additionService;
