@@ -66,4 +66,24 @@ class CalculatorTest {
         verify(multiplicationService, times(1)).multiply(anyInt(), anyInt());
         verifyZeroInteractions(subtractionService);
     }
+
+    @Test
+    public void givenANegativeInput_whenCalculatorCalculates_thenWeExpectNegativeEquationResults() {
+        // Given (Setup)
+        int expected = 10;
+        int x = -5;
+        when(subtractionService.subtract(anyInt(), anyInt())).thenReturn(expected);
+
+        // When (Run the thing that you want to test)
+        int y = calculator.calculateY(x);
+
+        // Then (Asserting what you want to be true, is actually true)
+        assertEquals(expected, y);
+
+        // Verify
+        verifyZeroInteractions(additionService);
+        verifyZeroInteractions(multiplicationService);
+        verify(subtractionService, times(1)).subtract(anyInt(), anyInt());
+    }
+
 }

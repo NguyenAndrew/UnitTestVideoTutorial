@@ -14,6 +14,11 @@ public class Calculator {
         // y = x
         int y = x;
 
+        if (x < 0) {
+            // y = 5 - x
+            return subtractionService.subtract(5, y);
+        }
+
         // y = 5 + x
         y = additionService.add(5, y);
 
