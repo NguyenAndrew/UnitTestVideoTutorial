@@ -30,7 +30,10 @@ public class Calculator {
         // y = (((5 + x) * x) - 5) * 2
         y = subMultiService.subtractThenMultiplyBy2(y, x);
 
-
         return y;
+    }
+
+    public int sameValue(int x) {
+        return x;
     }
 }

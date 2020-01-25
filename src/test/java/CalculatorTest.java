@@ -1,4 +1,5 @@
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,7 +28,6 @@ class CalculatorTest {
         ALL
     }
 
-
     @BeforeEach
     void setUp() {
         this.additionService = mock(AdditionService.class);
@@ -37,90 +37,118 @@ class CalculatorTest {
         this.calculator = new Calculator(additionService, multiplicationService, subtractionService, subMultiService);
     }
 
-    @Test
-    public void givenAnInput_whenCalculatorCalculates_thenWeExpectAnOutput() {
-        // Given (Setup)
-        int expected = SAMPLE_SUB_MULTI_OUTPUT;
-        int x = 10;
+    @Nested
+    class CalculateY {
 
-        mockUpUntil(MockId.ALL);
+        @Test
+        public void givenAnInput_whenCalculatorCalculates_thenWeExpectAnOutput() {
+            // Given (Setup)
+            int expected = SAMPLE_SUB_MULTI_OUTPUT;
+            int x = 10;
 
-        // When (Run the thing that you want to test)
-        int y = calculator.calculateY(x);
+            mockUpUntil(MockId.ALL);
 
-        // Then (Asserting what you want to be true, is actually true)
-        assertEquals(expected, y);
-
-        // Verify
-        verifyUpUntilAnd(MockId.ALL);
-    }
-
-    @Test
-    public void givenAnInput_whenMultiplicationServiceThrowsAnException_thenCalculatorBubblesThatExceptionUp() {
-        // Given (Setup)
-        int x = 10;
-        mockUpUntil(MockId.MULTIPLICATION_SERVICE);
-        when(multiplicationService.multiply(anyInt(), anyInt())).thenThrow(new RuntimeException(SAMPLE_EXCEPTION_MESSAGE));
-
-        try {
             // When (Run the thing that you want to test)
-            calculator.calculateY(x);
-            fail("Should have failed");
-        } catch (Exception e) {
+            int y = calculator.calculateY(x);
+
             // Then (Asserting what you want to be true, is actually true)
-            assertEquals(SAMPLE_EXCEPTION_MESSAGE, e.getMessage());
+            assertEquals(expected, y);
+
+            // Verify
+            verifyUpUntilAnd(MockId.ALL);
         }
 
-        // Verify
-        verifyUpUntilAnd(MockId.MULTIPLICATION_SERVICE);
-        verifyZeroInteractions(subtractionService);
+        @Test
+        public void givenAnInput_whenMultiplicationServiceThrowsAnException_thenCalculatorBubblesThatExceptionUp() {
+            // Given (Setup)
+            int x = 10;
+            mockUpUntil(MockId.MULTIPLICATION_SERVICE);
+            when(multiplicationService.multiply(anyInt(), anyInt())).thenThrow(new RuntimeException(SAMPLE_EXCEPTION_MESSAGE));
+
+            try {
+                // When (Run the thing that you want to test)
+                calculator.calculateY(x);
+                fail("Should have failed");
+            } catch (Exception e) {
+                // Then (Asserting what you want to be true, is actually true)
+                assertEquals(SAMPLE_EXCEPTION_MESSAGE, e.getMessage());
+            }
+
+            // Verify
+            verifyUpUntilAnd(MockId.MULTIPLICATION_SERVICE);
+            verifyZeroInteractions(subtractionService);
+        }
+
+        @Test
+        public void givenANegativeInput_whenCalculatorCalculates_thenWeExpectNegativeEquationResults() {
+            // Given (Setup)
+            int expected = 10;
+            int x = -5;
+            when(subtractionService.subtract(anyInt(), anyInt())).thenReturn(expected);
+
+            // When (Run the thing that you want to test)
+            int y = calculator.calculateY(x);
+
+            // Then (Asserting what you want to be true, is actually true)
+            assertEquals(expected, y);
+
+            // Verify
+            verifyZeroInteractions(additionService);
+            verifyZeroInteractions(multiplicationService);
+            verify(subtractionService, times(1)).subtract(anyInt(), anyInt());
+        }
+
+        private void mockUpUntil(MockId mockId) {
+            if (mockId == MockId.ADDITION_SERVICE) {
+                return;
+            }
+            when(additionService.add(anyInt(), anyInt())).thenReturn(SAMPLE_ADDITION_OUTPUT);
+
+            if (mockId == MockId.MULTIPLICATION_SERVICE) {
+                return;
+            }
+            when(multiplicationService.multiply(anyInt(), anyInt())).thenReturn(SAMPLE_MULTIPLICATION_OUTPUT);
+
+            if (mockId == MockId.SUBTRACTION_SERVICE) {
+                return;
+            }
+            when(subtractionService.subtract(anyInt(), anyInt())).thenReturn(SAMPLE_SUBTRACTION_OUTPUT);
+
+            if (mockId == MockId.SUB_MULTI_SERVICE) {
+                return;
+            }
+            when(subMultiService.subtractThenMultiplyBy2(anyInt(), anyInt())).thenReturn(SAMPLE_SUB_MULTI_OUTPUT);
+        }
+
+        private void verifyUpUntilAnd(MockId mockId) {
+            verify(additionService, times(1)).add(anyInt(), anyInt());
+            if (mockId == MockId.ADDITION_SERVICE) {
+                return;
+            }
+
+            verify(multiplicationService, times(1)).multiply(anyInt(), anyInt());
+            if (mockId == MockId.MULTIPLICATION_SERVICE) {
+                return;
+            }
+
+            verifyZeroInteractions(subtractionService);
+            if (mockId == MockId.SUBTRACTION_SERVICE) {
+                return;
+            }
+
+            verify(subMultiService, times(1)).subtractThenMultiplyBy2(anyInt(), anyInt());
+            if (mockId == MockId.SUB_MULTI_SERVICE) {
+                return;
+            }
+        }
     }
 
-    @Test
-    public void givenANegativeInput_whenCalculatorCalculates_thenWeExpectNegativeEquationResults() {
-        // Given (Setup)
-        int expected = 10;
-        int x = -5;
-        when(subtractionService.subtract(anyInt(), anyInt())).thenReturn(expected);
-
-        // When (Run the thing that you want to test)
-        int y = calculator.calculateY(x);
-
-        // Then (Asserting what you want to be true, is actually true)
-        assertEquals(expected, y);
-
-        // Verify
-        verifyZeroInteractions(additionService);
-        verifyZeroInteractions(multiplicationService);
-        verify(subtractionService, times(1)).subtract(anyInt(), anyInt());
-    }
-
-    private void mockUpUntil(MockId mockId) {
-        if (mockId == MockId.ADDITION_SERVICE) { return; }
-        when(additionService.add(anyInt(), anyInt())).thenReturn(SAMPLE_ADDITION_OUTPUT);
-
-        if (mockId == MockId.MULTIPLICATION_SERVICE) { return; }
-        when(multiplicationService.multiply(anyInt(), anyInt())).thenReturn(SAMPLE_MULTIPLICATION_OUTPUT);
-
-        if (mockId == MockId.SUBTRACTION_SERVICE) { return; }
-        when(subtractionService.subtract(anyInt(), anyInt())).thenReturn(SAMPLE_SUBTRACTION_OUTPUT);
-
-        if (mockId == MockId.SUB_MULTI_SERVICE) { return; }
-        when(subMultiService.subtractThenMultiplyBy2(anyInt(), anyInt())).thenReturn(SAMPLE_SUB_MULTI_OUTPUT);
-    }
-
-    private void verifyUpUntilAnd(MockId mockId) {
-        verify(additionService, times(1)).add(anyInt(), anyInt());
-        if (mockId == MockId.ADDITION_SERVICE) { return; }
-
-        verify(multiplicationService, times(1)).multiply(anyInt(), anyInt());
-        if (mockId == MockId.MULTIPLICATION_SERVICE) { return; }
-
-        verifyZeroInteractions(subtractionService);
-        if (mockId == MockId.SUBTRACTION_SERVICE) { return; }
-
-        verify(subMultiService, times(1)).subtractThenMultiplyBy2(anyInt(), anyInt());
-        if (mockId == MockId.SUB_MULTI_SERVICE) { return; }
+    @Nested
+    class SameValue {
+        @Test
+        public void sameValueTest() {
+            assertEquals(1, calculator.sameValue(1));
+        }
     }
 
     // Optional: verifyUpUntil(), used only when the method is a void and the test being done is the verify to underlying services.
