@@ -3,8 +3,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class CalculatorTest {
 
@@ -44,6 +43,11 @@ class CalculatorTest {
 
         // Then (Asserting what you want to be true, is actually true)
         assertEquals(expected, y);
+
+        // Verify
+        verify(additionService, times(1)).add(anyInt(), anyInt());
+        verify(multiplicationService, times(1)).multiply(anyInt(), anyInt());
+        verify(subtractionService, times(1)).subtract(anyInt(), anyInt());
     }
 
     @Test
@@ -60,6 +64,11 @@ class CalculatorTest {
 
         // Then (Asserting what you want to be true, is actually true)
         assertEquals(expected, y);
+
+        // Verify
+        verify(additionService, times(1)).add(anyInt(), anyInt());
+        verify(multiplicationService, times(1)).multiply(anyInt(), anyInt());
+        verify(subtractionService, times(1)).subtract(anyInt(), anyInt());
     }
 
     @Test
@@ -76,8 +85,10 @@ class CalculatorTest {
 
         // Then (Asserting what you want to be true, is actually true)
         assertEquals(expected, y);
+
+        // Verify
+        verify(additionService, times(1)).add(anyInt(), anyInt());
+        verify(multiplicationService, times(1)).multiply(anyInt(), anyInt());
+        verify(subtractionService, times(1)).subtract(anyInt(), anyInt());
     }
-
-
-
 }
