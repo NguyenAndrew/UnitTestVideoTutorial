@@ -6,8 +6,9 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
 
 class CalculatorTest {
-    private static final int SAMPLE_ADDITION_OUTPUT = 0;
-    private static final int SAMPLE_MULTIPLICATION_OUTPUT = 0;
+    private static final int SAMPLE_ADDITION_OUTPUT = 1;
+    private static final int SAMPLE_MULTIPLICATION_OUTPUT = 2;
+    private static final int SAMPLE_SUBTRACTION_OUTPUT = 3;
     private static final String SAMPLE_EXCEPTION_MESSAGE = "Sample Exception Message";
 
     private AdditionService additionService;
@@ -15,6 +16,14 @@ class CalculatorTest {
     private SubtractionService subtractionService;
 
     private Calculator calculator;
+
+    private enum MockId {
+        ADDITION_SERVICE,
+        MULTIPLICATION_SERVICE,
+        SUBTRACTION_SERVICE,
+        ALL
+    }
+
 
     @BeforeEach
     void setUp() {
@@ -27,11 +36,10 @@ class CalculatorTest {
     @Test
     public void givenAnInput_whenCalculatorCalculates_thenWeExpectAnOutput() {
         // Given (Setup)
-        int expected = 140;
+        int expected = SAMPLE_SUBTRACTION_OUTPUT;
         int x = 10;
-        when(additionService.add(anyInt(), anyInt())).thenReturn(SAMPLE_ADDITION_OUTPUT);
-        when(multiplicationService.multiply(anyInt(), anyInt())).thenReturn(SAMPLE_MULTIPLICATION_OUTPUT);
-        when(subtractionService.subtract(anyInt(), anyInt())).thenReturn(expected);
+
+        mockUpUntil(MockId.ALL);
 
         // When (Run the thing that you want to test)
         int y = calculator.calculateY(x);
@@ -40,16 +48,14 @@ class CalculatorTest {
         assertEquals(expected, y);
 
         // Verify
-        verify(additionService, times(1)).add(anyInt(), anyInt());
-        verify(multiplicationService, times(1)).multiply(anyInt(), anyInt());
-        verify(subtractionService, times(1)).subtract(anyInt(), anyInt());
+        verifyUpUntilAnd(MockId.ALL);
     }
 
     @Test
     public void givenAnInput_whenMultiplicationServiceThrowsAnException_thenCalculatorBubblesThatExceptionUp() {
         // Given (Setup)
         int x = 10;
-        when(additionService.add(anyInt(), anyInt())).thenReturn(SAMPLE_ADDITION_OUTPUT);
+        mockUpUntil(MockId.MULTIPLICATION_SERVICE);
         when(multiplicationService.multiply(anyInt(), anyInt())).thenThrow(new RuntimeException(SAMPLE_EXCEPTION_MESSAGE));
 
         try {
@@ -62,8 +68,7 @@ class CalculatorTest {
         }
 
         // Verify
-        verify(additionService, times(1)).add(anyInt(), anyInt());
-        verify(multiplicationService, times(1)).multiply(anyInt(), anyInt());
+        verifyUpUntilAnd(MockId.MULTIPLICATION_SERVICE);
         verifyZeroInteractions(subtractionService);
     }
 
@@ -85,5 +90,29 @@ class CalculatorTest {
         verifyZeroInteractions(multiplicationService);
         verify(subtractionService, times(1)).subtract(anyInt(), anyInt());
     }
+
+    private void mockUpUntil(MockId mockId) {
+        if (mockId == MockId.ADDITION_SERVICE) { return; }
+        when(additionService.add(anyInt(), anyInt())).thenReturn(SAMPLE_ADDITION_OUTPUT);
+
+        if (mockId == MockId.MULTIPLICATION_SERVICE) { return; }
+        when(multiplicationService.multiply(anyInt(), anyInt())).thenReturn(SAMPLE_MULTIPLICATION_OUTPUT);
+
+        if (mockId == MockId.SUBTRACTION_SERVICE) { return; }
+        when(subtractionService.subtract(anyInt(), anyInt())).thenReturn(SAMPLE_SUBTRACTION_OUTPUT);
+    }
+
+    private void verifyUpUntilAnd(MockId mockId) {
+        verify(additionService, times(1)).add(anyInt(), anyInt());
+        if (mockId == MockId.ADDITION_SERVICE) { return; }
+
+        verify(multiplicationService, times(1)).multiply(anyInt(), anyInt());
+        if (mockId == MockId.MULTIPLICATION_SERVICE) { return; }
+
+        verify(subtractionService, times(1)).subtract(anyInt(), anyInt());
+        if (mockId == MockId.SUBTRACTION_SERVICE) { return; }
+    }
+
+    // Optional: verifyUpUntil(), used only when the method is a void and the test being done is the verify to underlying services.
 
 }
