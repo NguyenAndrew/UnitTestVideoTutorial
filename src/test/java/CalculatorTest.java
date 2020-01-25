@@ -9,6 +9,7 @@ class CalculatorTest {
     private static final int SAMPLE_ADDITION_OUTPUT = 0;
     private static final int SAMPLE_MULTIPLICATION_OUTPUT = 0;
     private static final int SAMPLE_SUBTRACTION_OUTPUT = 0;
+    private static final String SAMPLE_EXCEPTION_MESSAGE = "Sample Exception Message";
 
     private AdditionService additionService;
     private MultiplicationService multiplicationService;
@@ -43,5 +44,27 @@ class CalculatorTest {
         verify(additionService, times(1)).add(anyInt(), anyInt());
         verify(multiplicationService, times(1)).multiply(anyInt(), anyInt());
         verify(subtractionService, times(1)).subtract(anyInt(), anyInt());
+    }
+
+    @Test
+    public void givenAnInput_whenMultiplicationServiceThrowsAnException_thenCalculatorBubblesThatExceptionUp() {
+        // Given (Setup)
+        int x = 10;
+        when(additionService.add(anyInt(), anyInt())).thenReturn(SAMPLE_ADDITION_OUTPUT);
+        when(multiplicationService.multiply(anyInt(), anyInt())).thenThrow(new RuntimeException(SAMPLE_EXCEPTION_MESSAGE));
+
+        try {
+            // When (Run the thing that you want to test)
+            calculator.calculateY(x);
+            fail("Should have failed");
+        } catch (Exception e) {
+            // Then (Asserting what you want to be true, is actually true)
+            assertEquals(SAMPLE_EXCEPTION_MESSAGE, e.getMessage());
+        }
+
+        // Verify
+        verify(additionService, times(1)).add(anyInt(), anyInt());
+        verify(multiplicationService, times(1)).multiply(anyInt(), anyInt());
+        verifyZeroInteractions(subtractionService);
     }
 }
